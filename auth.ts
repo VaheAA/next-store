@@ -3,7 +3,7 @@ import { PrismaAdapter } from '@auth/prisma-adapter'
 import { prisma } from '@/db/prisma'
 import CredentialsProvider from '@auth/core/providers/credentials'
 import { compareSync } from 'bcrypt-ts-edge'
-import type { NextAuthConfig } from 'next-auth'
+import type { NextAuthConfig, User } from 'next-auth'
 
 export const config = {
   pages: {
@@ -21,8 +21,8 @@ export const config = {
         email: { type: 'email' },
         password: { type: 'password' }
       },
-      async authorize(credentials) {
-        if (credentials == null) return null
+      async authorize(credentials): Promise<User | null> {
+        if (!credentials) return null
 
         const user = await prisma.user.findFirst({
           where: { email: credentials.email as string }
@@ -31,27 +31,23 @@ export const config = {
         if (user && user.password) {
           const isMatch = compareSync(credentials.password as string, user.password)
 
-          //   Check if password  is correct, return user
-
           if (isMatch) {
-            const { id, name, email, role } = user
-
             return {
-              id,
-              name,
-              email,
-              role
-            }
+              id: user.id,
+              name: user.name,
+              email: user.email,
+              role: user.role
+            } as User
           }
-
-          return null
         }
+
+        return null
       }
     })
   ],
   callbacks: {
-    async session({ session, token, user, trigger }: any) {
-      session.user.id = token.sub
+    async session({ session, token, user, trigger }) {
+      if (token.sub) session.user.id = token.sub
 
       if (trigger === 'update') {
         session.user.name = user.name
