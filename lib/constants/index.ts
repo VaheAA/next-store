@@ -15,3 +15,17 @@ export const signUpDefaultValues = {
   password: '',
   confirmPassword: ''
 }
+
+export const CURRENCY_FORMATTER = new Intl.NumberFormat('en-US', {
+  currency: 'USD',
+  style: 'currency',
+  minimumFractionDigits: 2
+})
+
+export const shippingAddressDefaultValues = {
+  fullName: '',
+  streetAddress: '',
+  city: '',
+  postalCode: '',
+  country: ''
+}

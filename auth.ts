@@ -6,6 +6,7 @@ import { compareSync } from 'bcrypt-ts-edge'
 import type { NextAuthConfig } from 'next-auth'
 import { AdapterUser } from '@auth/core/adapters'
 import { NextResponse } from 'next/server'
+import { cookies } from 'next/headers'
 
 interface StoreUser extends AdapterUser {
   role: string
@@ -63,8 +64,9 @@ export const config = {
 
       return session
     },
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger }) {
       if (user) {
+        token.id = user.id
         token.role = user.role
 
         if (user.name === 'NO_NAME') {
@@ -76,12 +78,45 @@ export const config = {
             }
           })
         }
+
+        if (trigger === 'signIn' || trigger === 'signUp') {
+          const cookiesObject = await cookies()
+          const sessionCartId = cookiesObject.get('sessionCartId')?.value
+
+          if (sessionCartId) {
+            const sessionCart = await prisma.cart.findFirst({
+              where: { sessionCartId }
+            })
+
+            if (sessionCart) {
+              await prisma.cart.deleteMany({
+                where: { userId: user.id }
+              })
+
+              await prisma.cart.update({
+                where: { id: sessionCart.id },
+                data: { userId: user.id }
+              })
+            }
+          }
+        }
       }
 
       return token
     },
-    async authorized({ request }) {
-      //  Check for session cart cookie
+    async authorized({ request, auth }) {
+      const protectedPaths = [
+        /\/shipping-address/,
+        /\/payment-method/,
+        /\/place-order/,
+        /\/profile/,
+        /\/user\/(.*)/,
+        /\/admin/
+      ]
+
+      const { pathname } = request.nextUrl
+
+      if (!auth && protectedPaths.some((path) => path.test(pathname))) return false
 
       if (!request.cookies.get('sessionCartId')) {
         const sessionCartId = crypto.randomUUID()
