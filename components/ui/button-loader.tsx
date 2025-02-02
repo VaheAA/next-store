@@ -15,6 +15,7 @@ interface ButtonLoaderProps {
     | null
     | undefined
   isPending?: boolean
+  className?: string
   icon?: JSX.Element | null
   onClick?: () => void
 }
@@ -23,12 +24,18 @@ export function ButtonLoader({
   type,
   text,
   variant = 'default',
+  className,
   icon,
   isPending,
   onClick
 }: ButtonLoaderProps): JSX.Element {
   return (
-    <Button variant={variant} type={type} disabled={isPending} onClick={onClick}>
+    <Button
+      className={className}
+      variant={variant}
+      type={type}
+      disabled={isPending}
+      onClick={onClick}>
       {isPending ? <Loader className="h-4 w-4 animate-spin" /> : icon} {text}
     </Button>
   )
