@@ -1,8 +1,8 @@
 const baseUrl = process.env.PAYPAL_API_URL || 'https://api-m.sandbox.paypal.com'
 
-export const paypal = {
+const paypal = {
   createOrder: async function createOrder(price: number) {
-    const accessToken = generateAccessToken()
+    const accessToken = await generateAccessToken()
     const url = `${baseUrl}/v2/checkout/orders`
 
     const response = await fetch(url, {
@@ -28,7 +28,7 @@ export const paypal = {
   },
 
   capturePayment: async function capturePayment(orderId: string) {
-    const accessToken = generateAccessToken()
+    const accessToken = await generateAccessToken()
     const url = `${baseUrl}/v2/checkout/orders/${orderId}/capture`
 
     const response = await fetch(url, {
@@ -71,4 +71,4 @@ async function handleResponse(response: Response) {
   return response.json()
 }
 
-export { generateAccessToken }
+export { generateAccessToken, paypal }

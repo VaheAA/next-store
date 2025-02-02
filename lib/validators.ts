@@ -101,3 +101,10 @@ export const insertOrderItemSchema = z.object({
   price: currency,
   qty: z.number()
 })
+
+export const paymentResultSchema = z.object({
+  id: z.string().min(1, 'Payment is required'),
+  status: z.string().min(1, 'Status is required'),
+  email_address: z.string().min(1, 'Email is required'),
+  pricePaid: z.string().min(1, 'Price is required')
+})
