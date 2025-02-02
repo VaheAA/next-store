@@ -105,18 +105,18 @@ export const config = {
       return token
     },
     async authorized({ request, auth }) {
-      const protectedPaths = [
-        /\/shipping-address/,
-        /\/payment-method/,
-        /\/place-order/,
-        /\/profile/,
-        /\/user\/(.*)/,
-        /\/admin/
-      ]
-
-      const { pathname } = request.nextUrl
-
-      if (!auth && protectedPaths.some((path) => path.test(pathname))) return false
+      // const protectedPaths = [
+      //   /\/shipping-address/,
+      //   /\/payment-method/,
+      //   /\/place-order/,
+      //   /\/profile/,
+      //   /\/user\/(.*)/,
+      //   /\/admin/
+      // ]
+      //
+      // const { pathname } = request.nextUrl
+      //
+      // if (!auth && protectedPaths.some((path) => path.test(pathname))) return false
 
       if (!request.cookies.get('sessionCartId')) {
         const sessionCartId = crypto.randomUUID()
