@@ -1,10 +1,16 @@
 import NextAuth from 'next-auth'
+import { PrismaAdapter } from '@auth/prisma-adapter'
 import { prisma } from '@/db/prisma'
+import CredentialsProvider from '@auth/core/providers/credentials'
+import { compare } from '@/lib/encrypt'
 import type { NextAuthConfig } from 'next-auth'
+import { AdapterUser } from '@auth/core/adapters'
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
-import { prismaAdapter } from '@/auth/prisma.adapter'
-import { providers } from '@/auth/providers'
+
+interface StoreUser extends AdapterUser {
+  role: string
+}
 
 export const config = {
   pages: {
@@ -15,8 +21,37 @@ export const config = {
     strategy: 'jwt',
     maxAge: 60 * 60 * 1000
   },
-  adapter: prismaAdapter,
-  providers: providers,
+  adapter: PrismaAdapter(prisma),
+  providers: [
+    CredentialsProvider({
+      credentials: {
+        email: { type: 'email' },
+        password: { type: 'password' }
+      },
+      async authorize(credentials): Promise<StoreUser | null> {
+        if (!credentials) return null
+
+        const user = await prisma.user.findFirst({
+          where: { email: credentials.email as string }
+        })
+
+        if (user && user.password) {
+          const isMatch = await compare(credentials.password as string, user.password)
+
+          if (isMatch) {
+            return {
+              id: user.id,
+              name: user.name,
+              email: user.email,
+              role: user.role
+            } as StoreUser
+          }
+        }
+
+        return null
+      }
+    })
+  ],
   callbacks: {
     async session({ session, token, user, trigger }) {
       if (token.sub) session.user.id = token.sub

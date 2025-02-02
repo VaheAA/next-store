@@ -18,6 +18,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { formatCurrency } from '@/lib/utils'
 import { Card, CardContent } from '@/components/ui/card'
+import { ButtonLoader } from '@/components/ui/button-loader'
 
 export function CartTable({ cart }: { cart?: Cart }) {
   const [isPending, startTransition] = useTransition()
@@ -115,17 +116,13 @@ export function CartTable({ cart }: { cart?: Cart }) {
                 Subtotal ({cart.items.reduce((acc, item) => acc + item.qty, 0)}):
                 <span className="font-bold">{formatCurrency(cart.itemsPrice)}</span>
               </div>
-              <Button
-                className="w-full"
-                disabled={isPending}
-                onClick={() => startTransition(() => router.push('/shipping-address'))}>
-                {isPending ? (
-                  <Loader className="h-4 w-4 animate-spin" />
-                ) : (
-                  <ArrowRight className="h-4 w-4 " />
-                )}{' '}
-                Proceed To Checkout
-              </Button>
+              <ButtonLoader
+                type="submit"
+                text="Proceed To Checkout"
+                icon={<ArrowRight />}
+                isPending={isPending}
+                onClick={() => startTransition(() => router.push('/shipping-address'))}
+              />
             </CardContent>
           </Card>
         </div>
