@@ -1,7 +1,4 @@
-import { config as authConfig } from './auth'
-import NextAuth from 'next-auth'
-
-const { auth } = NextAuth(authConfig)
+import { auth } from './auth'
 
 export default auth(async function middleware(req) {
   const isAuthenticated = !!req.auth

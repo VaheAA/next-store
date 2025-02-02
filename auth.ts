@@ -12,6 +12,17 @@ interface StoreUser extends AdapterUser {
   role: string
 }
 
+export const authConfig = {
+  pages: {
+    signIn: '/sign-in',
+    error: '/sign-in'
+  },
+  session: {
+    strategy: 'jwt',
+    maxAge: 60 * 60 * 1000
+  }
+}
+
 export const config = {
   pages: {
     signIn: '/sign-in',
@@ -104,20 +115,7 @@ export const config = {
 
       return token
     },
-    async authorized({ request, auth }) {
-      // const protectedPaths = [
-      //   /\/shipping-address/,
-      //   /\/payment-method/,
-      //   /\/place-order/,
-      //   /\/profile/,
-      //   /\/user\/(.*)/,
-      //   /\/admin/
-      // ]
-      //
-      // const { pathname } = request.nextUrl
-      //
-      // if (!auth && protectedPaths.some((path) => path.test(pathname))) return false
-
+    async authorized({ request }) {
       if (!request.cookies.get('sessionCartId')) {
         const sessionCartId = crypto.randomUUID()
 
