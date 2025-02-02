@@ -12,7 +12,7 @@ interface StoreUser extends AdapterUser {
   role: string
 }
 
-const config = {
+export const config = {
   pages: {
     signIn: '/sign-in',
     error: '/sign-in'
